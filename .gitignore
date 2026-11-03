@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+
+# Node
+node_modules/
+dist/
+
+# 环境配置
+.env
+
+# 运行产物
+backend/output/
+backend/static/
+
+# 系统文件
+.DS_Store
+
+# 测试缓存
+.pytest_cache/
+
+# others
+*.md
+*.sh

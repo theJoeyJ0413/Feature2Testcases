@@ -1,0 +1,535 @@
+/* ============================================================
+ * FeaturesView 需求管理页面样式
+ *   1. 页面整体布局（左右分栏 30% / 70%）
+ *   2. 左侧：项目搜索 + 项目列表
+ *   3. 右侧：项目头部（只读）+ 需求工具条
+ *   4. 需求卡片（编号/模块/标题/状态 + 可折叠详情）
+ *   5. 弹窗（新建/编辑/确认，本页独立加载，需自行定义）
+ * ============================================================ */
+
+/* ===== 1. 页面整体布局 ===== */
+.features-page {
+  display: flex;
+  gap: 16px;
+  height: calc(100vh - 64px); /* 内容区上下 padding 各 32px */
+}
+
+/* ===== 2. 左侧：项目搜索 + 项目列表 ===== */
+.features-sidebar {
+  flex: 0 0 30%;
+  min-width: 260px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.features-search {
+  margin-bottom: 12px;
+}
+
+.features-search input {
+  width: 100%;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.features-search input:focus {
+  outline: none;
+  border-color: #1a6ee8;
+}
+
+.project-list {
+  list-style: none;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.project-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #2c3e50;
+  transition: background 0.2s;
+}
+
+.project-item:hover {
+  background: #f5f7fa;
+}
+
+.project-item.active {
+  background: #eef4ff;
+  color: #1a6ee8;
+  font-weight: 600;
+}
+
+.project-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-item-count {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 1px 9px;
+  border-radius: 999px;
+  background: #f0f3f7;
+  color: #55606e;
+}
+
+.project-item.active .project-item-count {
+  background: #1a6ee8;
+  color: #fff;
+}
+
+/* ===== 3. 右侧：项目头部 + 需求工具条 ===== */
+.features-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.features-placeholder {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  color: #9aa7b5;
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.project-header {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  padding: 18px 24px;
+  flex-shrink: 0;
+}
+
+.project-header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.project-header-name {
+  font-size: 20px;
+  color: #2c3e50;
+  word-break: break-all;
+}
+
+.project-header-meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 6px;
+  font-size: 13px;
+  color: #55606e;
+}
+
+.project-header-desc {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #55606e;
+  word-break: break-all;
+}
+
+.features-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.features-count {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.features-toolbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== 4. 需求卡片 ===== */
+.feature-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+
+.feature-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.feature-card.expanded {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 卡片头：始终显示，点击切换展开/收起 */
+.feature-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.feature-card-head:hover {
+  background: #fafbfd;
+}
+
+.feature-head-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+/* 模块徽标 */
+.feature-module {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #1a6ee8;
+}
+
+/* 优先级徽标（P0/P1/P2/P3） */
+.feature-priority {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.priority-P0 { background: #fdecec; color: #d64545; }
+.priority-P1 { background: #fff4e5; color: #d98c1f; }
+.priority-P2 { background: #eef4ff; color: #1a6ee8; }
+.priority-P3 { background: #f0f3f7; color: #9aa7b5; }
+
+/* 编号 FEATURE-001 */
+.feature-no {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  color: #55606e;
+}
+
+.feature-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 状态徽标（需求：open/analyzed/closed，项目：active/archived） */
+.feature-status {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.status-open     { background: #eef4ff; color: #1a6ee8; }
+.status-analyzed { background: #e6f7ec; color: #2e9e5b; }
+.status-closed   { background: #f0f3f7; color: #9aa7b5; }
+.status-active   { background: #e6f7ec; color: #2e9e5b; }
+.status-archived { background: #f0f3f7; color: #9aa7b5; }
+
+.feature-toggle {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #9aa7b5;
+}
+
+/* 卡片体：仅展开时渲染 */
+.feature-card-body {
+  padding: 0 20px 16px;
+  border-top: 1px solid #eef2f6;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feature-desc {
+  font-size: 14px;
+  color: #2c3e50;
+  word-break: break-all;
+  padding-top: 14px;
+}
+
+.feature-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #55606e;
+  margin-bottom: 6px;
+}
+
+/* 功能性需求：逐条列表 */
+.functional-list {
+  list-style: disc;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+/* 非功能性需求：按维度分组 */
+.nf-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nf-group {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.nf-label {
+  flex-shrink: 0;
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #f0f3f7;
+  color: #55606e;
+  margin-top: 2px;
+}
+
+.nf-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #2c3e50;
+}
+
+/* 底部操作行 */
+.feature-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #eef2f6;
+}
+
+/* ===== 5. 弹窗（与项目页弹窗样式一致，本页需独立定义） ===== */
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.modal-field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.modal-field span {
+  display: block;
+  font-size: 13px;
+  color: #55606e;
+  margin-bottom: 4px;
+}
+
+.modal-field input,
+.modal-field textarea,
+.modal-field select {
+  width: 100%;
+  border: 1px solid #d9e2ec;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.modal-field textarea { resize: vertical; }
+
+.modal-field input:focus,
+.modal-field textarea:focus,
+.modal-field select:focus {
+  outline: none;
+  border-color: #1a6ee8;
+}
+
+.modal-error {
+  color: #d64545;
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.confirm-message {
+  color: #55606e;
+  font-size: 14px;
+  margin-bottom: 8px;
+  word-break: break-all;
+}
+
+.btn.danger {
+  border-color: #f6d4d4;
+  color: #d64545;
+}
+.btn.danger:hover { background: #fdf2f2; }
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ===== 轻提示 Toast（生成完成等反馈，顶部居中浮层） ===== */
+.toast {
+  position: fixed;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%); /* 动画结束后保持居中，避免回跳 */
+  z-index: 200;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  background: #e6f7ec;
+  color: #2e9e5b;
+  border: 1px solid #bfe8cd;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  animation: toast-in 0.25s ease;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ===== JSON 结构化编辑：动态列表 / 维度组 ===== */
+/* 行内输入框覆盖 .modal-field input 的 width:100% */
+.modal-field .json-list-row input,
+.modal-field .nf-group-head input {
+  width: auto;
+  flex: 1;
+  min-width: 0;
+}
+
+.json-list-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.json-row-remove {
+  flex-shrink: 0;
+  padding: 5px 9px;
+  border: 1px solid #d9e2ec;
+  border-radius: 6px;
+  background: #fff;
+  color: #d64545;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+.json-row-remove:hover {
+  background: #fdf0f0;
+  border-color: #d64545;
+}
+
+.json-row-add {
+  display: inline-block;
+  padding: 7px 14px;
+  border: 1px dashed #b9c6d4;
+  border-radius: 8px;
+  background: #fff;
+  color: #1a6ee8;
+  font-size: 13px;
+  cursor: pointer;
+}
+.json-row-add:hover {
+  background: #f0f6ff;
+  border-color: #1a6ee8;
+}
+
+/* 非功能性要求：维度组 */
+.nf-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.nf-group {
+  padding: 10px;
+  border: 1px solid #e6ebf1;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+.nf-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.nf-group .json-list-row:last-child {
+  margin-bottom: 0;
+}
+.nf-group > .json-row-add {
+  margin-top: 2px;
+}
