@@ -20,5 +20,3 @@ backend/static/
 .pytest_cache/
 
 # others
-*.md
-*.sh
