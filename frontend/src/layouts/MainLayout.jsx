@@ -21,7 +21,7 @@ export default function MainLayout() {
       {/* 左侧菜单 */}
       <aside className="sidebar">
         <div className="sidebar-header">
-          <h2>智能测试工坊</h2>
+          <h2>Feature2Testcases</h2>
         </div>
         <nav className="sidebar-nav">
           {MENUS.map((menu) => (

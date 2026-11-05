@@ -1,10 +1,3 @@
-"""
-FastAPI 入口
-
-启动方式（在 backend 目录下）：
-    python3 -m uvicorn app.main:app --port 8000
-"""
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
