@@ -36,15 +36,19 @@ print(testcase_path)             # 测试用例 .xlsx 路径
 
 ## 命令行用法
 
+在 `backend/` 目录下执行（依赖由 `backend/pyproject.toml` 统一管理、`uv.lock` 锁定）：
+
 ```bash
+cd backend
+
 # 完整流程
-python main.py "开发一个用户管理系统"
+uv run python -m app.agents.unified_agent.main "开发一个用户管理系统"
 
 # 只做需求分析
-python main.py -f input.txt --stage analyze
+uv run python -m app.agents.unified_agent.main -f input.txt --stage analyze
 
 # 只做测试用例生成（输入为阶段1产出的 json）
-python main.py -f features_xxx.json --stage testcases
+uv run python -m app.agents.unified_agent.main -f features_xxx.json --stage testcases
 ```
 
 配置方式：复制 `.env.example` 为 `.env` 并填写 API Key。

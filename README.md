@@ -19,7 +19,8 @@
 ### 环境要求
  |技术      |版本      |说明             |
  |---------|---------|----------------|
- |Python|3.11.7|后端运行环境|
+ |Python|3.13.18|后端运行环境（uv 管理）|
+ |uv|0.13.7|Python 环境与依赖管理|
  |Node.js|v26.13.0|前端构建|
  |npm|11.20.0|包管理|
  |SQLite|3.41.2|单文件数据库|
@@ -28,13 +29,15 @@
 
 |技术      |版本      |说明             |
  |---------|---------|----------------|
- |FastAPI|>=0.110.0|Web 框架：REST路由、依赖注入、OpenAPI文档、CORS|
- |uvicorn[standard]|>=0.29.0|ASGI服务器|
- |Pydantic|2.13.4|请求体模型校验|
- |python-multipart|0.0.31|解析上传文件|
+ |FastAPI|0.162.0|Web 框架：REST路由、依赖注入、OpenAPI文档、CORS|
+ |uvicorn[standard]|0.54.0|ASGI服务器|
+ |Pydantic|2.14.2|请求体模型校验|
+ |python-multipart|0.0.33|解析上传文件|
  |openai|1.109.1|LLM客户端|
- |PyPDF2|3.0.0|提取PDF文档里的文本需求|
- |openpyxl|3.1.0|生成Excel|
+ |pypdf|6.21.4|提取 PDF 文档里的文本需求|
+ |openpyxl|3.1.5|生成 Excel|
+
+> 依赖版本由 `backend/pyproject.toml` 声明、`backend/uv.lock` 锁定；上表为当前锁定值。
 
 ### 前端 frontend/
 
@@ -50,7 +53,7 @@
 
 |技术      |版本      |说明             |
  |---------|---------|----------------|
- |pytest|7.4.0|测试框架|
+ |pytest|9.2.0|测试框架|
  |httpx|0.28.1|-|
 
 
@@ -98,7 +101,9 @@ Feature2Testcases/
 │   ├── static/                           # 前端构建产物
 │   ├── output/                           # 生成文件（按任务 ID 分目录）
 │   ├── data/                             # SQLite 数据
-│   ├── requirements.txt                  # 后端 Python 依赖
+│   ├── pyproject.toml                    # 后端依赖声明（uv 项目）
+│   ├── uv.lock                           # 依赖锁定文件（提交进版本库）
+│   ├── .python-version                   # Python 版本（3.13）
 │   ├── .env                              # API Key 配置
 │   └── .env.example                      # 配置模板
 ├── frontend/                             # 前端（React + Vite）
@@ -162,7 +167,7 @@ Feature2Testcases/
 
 ### 准备工作
 
-1. 安装 [Python 3](https://www.python.org/downloads/) 和 [Node.js](https://nodejs.org/)
+1. 安装 [uv](https://docs.astral.sh/uv/)（`brew install uv`）和 [Node.js](https://nodejs.org/)；Python 3.13 由 uv 自动发现或下载
 2. 配置 API Key：
 
    ```bash
@@ -183,12 +188,15 @@ Feature2Testcases/
 ./start.sh
 ```
 
+脚本会先执行 `uv sync` 同步后端依赖（以 `uv.lock` 为准），再启动后端与前端。
+
 ### 手动启动（可选）
 
 ```bash
-# 终端 1：启动后端（在 backend 目录下）
+# 终端 1：同步依赖并启动后端（在 backend 目录下）
 cd backend
-python3 -m uvicorn app.main:app --port 8000
+uv sync
+uv run python -m uvicorn app.main:app --port 8000
 
 # 终端 2：启动前端（在 frontend 目录下）
 cd frontend
@@ -196,6 +204,21 @@ npm run dev
 ```
 
 访问 http://localhost:5173 使用。
+
+### 环境管理（uv）
+
+后端依赖以 `backend/pyproject.toml` 声明、`backend/uv.lock` 锁定，`backend/.venv` 由 uv 自动维护：
+
+```bash
+cd backend
+uv sync                  # 按 uv.lock 安装/同步环境（默认含 dev 组）
+uv add <包名>            # 新增运行依赖
+uv add --dev <包名>      # 新增开发依赖
+uv lock --upgrade        # 升级并重新锁定
+uv run python -m pytest  # 在项目环境中执行命令，无需手动 activate
+```
+
+生产环境可用 `uv sync --no-dev` 跳过测试依赖。
 
 ### 页面操作
 
@@ -216,8 +239,8 @@ npm run dev
 
 ```bash
 cd backend
-pip install -r requirements-dev.txt   # 首次需安装 pytest / httpx
-python3 -m pytest
+uv sync            # 含 dev 依赖组（pytest / httpx）
+uv run python -m pytest
 ```
 
 在临时目录中运行、不触碰真实数据：测试通过环境变量 `OUTPUT_ROOT` 指向临时目录、并把 `db_conn.DB_PATH` 替换为临时 SQLite 文件实现全隔离；每个用例前自动清空表，测试结果与 `data/management.db`、`output/` 的真实数据完全无关。

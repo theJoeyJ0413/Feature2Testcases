@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.pyc
+.venv/
 
 # Node
 node_modules/
@@ -15,6 +16,7 @@ backend/static/
 
 # 系统文件
 .DS_Store
+.vscode/
 
 # 测试缓存
 .pytest_cache/

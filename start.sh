@@ -1,20 +1,19 @@
 #!/bin/bash
 # ============================================
-# 一键启动脚本
-# 安装依赖 → 启动后端 → 启动前端 → 打开浏览器
+# 一键启动脚本（uv 管理 Python 环境）
+# 会自动：同步后端依赖 → 启动后端 → 启动前端 → 打开浏览器
 # ============================================
 set -e
 cd "$(dirname "$0")"
 
 echo "======================================"
 
-# ---------- 1. 检查 Python 后端依赖 ----------
-if ! python3 -c "import fastapi, uvicorn, multipart" > /dev/null 2>&1; then
-  echo "[1/4] 首次运行，正在安装后端依赖..."
-  python3 -m pip install -r backend/requirements.txt
-else
-  echo "[1/4] 后端依赖已就绪"
+# ---------- 1. 检查 uv ----------
+if ! command -v uv >/dev/null 2>&1; then
+  echo "❌ 未找到 uv，请先安装：brew install uv"
+  exit 1
 fi
+echo "[1/4] uv 已就绪：$(uv --version)"
 
 # ---------- 2. 检查 API Key 配置 ----------
 if [ ! -f backend/.env ]; then
@@ -35,16 +34,24 @@ if ! grep -q "OPENAI_API_KEY=." backend/.env; then
 fi
 echo "[2/4] API Key 配置已就绪"
 
-# ---------- 3. 安装前端依赖 ----------
+# ---------- 3. 同步后端依赖（以 uv.lock 为准，幂等且很快） ----------
+if [ ! -d backend/.venv ]; then
+  echo "[3/4] 首次运行，正在创建 venv 并安装后端依赖..."
+else
+  echo "[3/4] 正在同步后端依赖..."
+fi
+(cd backend && uv sync --quiet)
+echo "       Python: $(cd backend && uv run python -V | cut -d' ' -f2)"
+
+# ---------- 4. 安装前端依赖 ----------
 if [ ! -d frontend/node_modules ]; then
-  echo "[3/4] 首次运行，正在安装前端依赖（需要几分钟）..."
+  echo "[4/4] 首次运行，正在安装前端依赖（需要几分钟）..."
   (cd frontend && npm install)
 else
-  echo "[3/4] 前端依赖已就绪"
+  echo "[4/4] 前端依赖已就绪"
 fi
 
-# ---------- 4. 启动服务 ----------
-echo "[4/4] 正在启动服务..."
+# ---------- 启动服务 ----------
 echo ""
 echo "  后端地址: http://localhost:8000"
 echo "  接口文档地址: http://localhost:8000/docs"
@@ -52,8 +59,7 @@ echo "  前端页面: http://localhost:5173"
 echo "  按 Ctrl+C 可停止所有服务"
 echo ""
 
-# 后台启动后端
-(cd backend && python3 -m uvicorn app.main:app --port 8000) &
+(cd backend && uv run python -m uvicorn app.main:app --port 8000) &
 BACKEND_PID=$!
 trap "kill $BACKEND_PID 2>/dev/null" EXIT
 
