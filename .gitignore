@@ -20,5 +20,3 @@ backend/static/
 
 # 测试缓存
 .pytest_cache/
-
-# others

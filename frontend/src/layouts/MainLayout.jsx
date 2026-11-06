@@ -8,10 +8,10 @@ import './MainLayout.css'
  */
 
 const MENUS = [
-  { path: '/', label: 'Agent' },
+  { path: '/', label: 'AI 对话' },
   { path: '/projects', label: '项目管理' },
   { path: '/features', label: '需求管理' },
-  { path: '/testcases', label: '测试用例管理' },
+  { path: '/testcases', label: '用例管理' },
   { path: '/testruns', label: '测试运行' }
 ]
 
